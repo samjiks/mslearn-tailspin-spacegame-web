@@ -7,20 +7,21 @@ trigger:
 - '*'
 
 pool:
-  vmImage: 'ubuntu-latest'
+  vmImage: 'ubuntu-16.04'
+  demands:
+    - npm
 
 variables:
   buildConfiguration: 'Release'
+  wwwrootDir: 'Tailspin.SpaceGame.Web/wwwroot'
+  dotnetSdkVersion: '2.1.505'
 
 steps:
-- script: dotnet build --configuration $(buildConfiguration)
-  displayName: 'dotnet build $(buildConfiguration)'
-
 - task: UseDotNet@2
   displayName: Use .NET Core SDK 2.1.505
   inputs:
     packageType: 'sdk'
-    version: '2.1.505'
+    version: '$(dotnetSdkVersion)'
 
 - task: Npm@1
   displayName: Run npm install
@@ -31,7 +32,7 @@ steps:
 - task: CmdLine@2
   displayName: Compile SASS assets
   inputs:
-    script: './node_modules/.bin/node-sass Tailspin.SpaceGame.Web/wwwroot --output Tailspin.SpaceGame.Web/wwwroot'
+    script: './node_modules/.bin/node-sass '$(wwwrootDir)' --output $(wwwrootDir)'
 
 - task: Gulp@1
   displayName: Enable Code Coverage
@@ -56,5 +57,20 @@ steps:
   inputs:
     command: 'build'
     projects: '**/*.csproj'
-    arguments: '--no-restore --configuration Release'
+    arguments: '--no-restore --configuration $(buildConfiguration)'
+    zipAfterPublish: true
+    
 
+- task: DotNetCoreCLI@2
+  displayName: 'Publish the project - $(buildConfiguration)'
+  inputs:
+    command: 'publish'
+    projects: '**/*.csproj'
+    pubishWebProjects: false
+    arguments: '--no-restore --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/Release'
+    zipAfterPublish: true
+
+- task: PubishBuildArtifacts@1
+  displayName: 'Publish Artifact: drop'
+  condition: succeeded()
+  
