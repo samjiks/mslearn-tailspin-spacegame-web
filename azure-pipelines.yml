@@ -32,7 +32,7 @@ steps:
 - task: CmdLine@2
   displayName: Compile SASS assets
   inputs:
-    script: './node_modules/.bin/node-sass '$(wwwrootDir)' --output $(wwwrootDir)'
+    script: './node_modules/.bin/node-sass $(wwwrootDir) --output $(wwwrootDir)'
 
 - task: Gulp@1
   displayName: Enable Code Coverage
