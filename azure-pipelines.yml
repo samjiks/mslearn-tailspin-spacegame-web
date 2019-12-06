@@ -55,7 +55,7 @@ steps:
     arguments: '--no-build --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/$(buildConfiguration)'
     zipAfterPublish: true
 
-task: DotNetCoreCLI@2
+- task: DotNetCoreCLI@2
   displayName: 'Install ReportGenerator'
   inputs:
     command: custom
